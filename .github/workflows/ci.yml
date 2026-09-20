@@ -1,0 +1,21 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet restore DesktopSearch.sln
+      - run: dotnet build DesktopSearch.sln --configuration Release --no-restore
+      - run: dotnet run --project tests/DesktopSearch.Tests/DesktopSearch.Tests.csproj --configuration Release --no-build
+      - run: dotnet run --project src/DesktopSearch/DesktopSearch.csproj --configuration Release --no-build -- --version
